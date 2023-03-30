@@ -32,9 +32,12 @@ namespace WeatherClient.ConsoleApp.Services
             }
 
             // The below commented code not working when cityName = kolkata and in json file it has Kolkāta. latin character(ā) is there.
+            //approach-1:
             //return cities.Where(x => x.City.Equals(cityName, StringComparison.OrdinalIgnoreCase)).FirstOrDefault();
+            //approach-2:
             //return cities.Where(x => x.City.Equals(cityName, StringComparison.InvariantCultureIgnoreCase)).FirstOrDefault();
 
+            //approach-3:
             return cities.Where(x => string.Compare(x.City, cityName, CultureInfo.InvariantCulture, CompareOptions.IgnoreCase | CompareOptions.IgnoreNonSpace) == 0).FirstOrDefault();
         }
     }

@@ -25,6 +25,7 @@ namespace WeatherClient.ConsoleApp
 
                 var serviceCollection = new ServiceCollection();
 
+                //Add httpclient with retries policies. It will call api 4 times to get valid response if error code > 500 or no content.
                 serviceCollection.AddHttpClient(HttpClientName.GetWeather, client =>
                 {
                     client.BaseAddress = new Uri(configuration["OpenMetroAPiBaseUrl"]);
@@ -42,9 +43,6 @@ namespace WeatherClient.ConsoleApp
 
                 var dbFileService = serviceProvider.GetService<IDbFileService>();
 
-                var x = string.Compare("kolkata", "kolkata", CultureInfo.InvariantCulture, CompareOptions.IgnoreCase | CompareOptions.IgnoreNonSpace) == 0;
-                x = string.Compare("Kolkta", "kolkata", CultureInfo.InvariantCulture, CompareOptions.IgnoreCase | CompareOptions.IgnoreNonSpace) == 0;
-
                 var city = dbFileService.GetCityInfo(cityName);
 
                 while (city is null)
@@ -59,10 +57,8 @@ namespace WeatherClient.ConsoleApp
                 var weatherService = serviceProvider.GetService<IWeatherService>();
                 var weather = await weatherService.GetWeatherAsync(city.Lat, city.Lng);
 
-                if (weather is null || weather.CurrentWeather is null)
-                {
+                if (weather is null || weather?.CurrentWeather is null)
                     throw new Exception($"Weather not found for city: {cityName}");
-                }
 
                 Console.WriteLine($"Weather of {cityName} is below.");
 
@@ -87,15 +83,12 @@ namespace WeatherClient.ConsoleApp
 
         static string GetCityName(bool isInitial)
         {
-            if(!isInitial)
-            {
+            if(!isInitial) 
                 Console.WriteLine("");
-            }
+
             Console.Write($"Enter{(isInitial ? "": " another")} city name: ");
 
-            string cityName = string.Empty;
-
-            cityName = Console.ReadLine();
+            string cityName = Console.ReadLine();
 
             while (string.IsNullOrEmpty(cityName))
             {
